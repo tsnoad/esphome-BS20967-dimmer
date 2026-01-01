@@ -1,0 +1,80 @@
+substitutions:
+  device_name: bs20967-dimmer
+  friendly_name: "Dimmer Switch"
+  
+esphome:
+  name: ${device_name}
+  # Friendly names are used where appropriate in Home Assistant
+  friendly_name: "${friendly_name}"
+  
+#  esphome:
+#  name: project-template
+#  friendly_name: Project Template
+  # Automatically add the mac address to the name
+  # so you can use a single firmware for all devices
+  name_add_mac_suffix: true
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+  baud_rate: 0          # disables logger on UART0 so it doesn't conflict
+  level: DEBUG
+  logs:
+    uart: DEBUG
+
+# API is a requirement of the dashboard import.
+api:
+
+# OTA is required for Over-the-Air updating
+ota:
+  - platform: esphome
+
+wifi:
+  min_auth_mode: WPA2
+  # Set up a wifi access point using the device name above
+  ap:
+    ssid: "${device_name} Fallback"
+    password: "hAXsZ97AKqvn"
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device.
+captive_portal:
+
+safe_mode:
+
+button:
+  - platform: restart
+    name: "${friendly_name} Restart"
+  - platform: safe_mode
+    name: "${friendly_name} Restart (Safe Mode)"
+  - platform: shutdown
+    name: "${friendly_name} Shutdown"
+
+sensor:
+  - platform: wifi_signal
+    name: ${device_name} Wifi Signal Strength
+    update_interval: 60s
+  - platform: uptime
+    name: ${device_name} Uptime
+
+uart:
+  id: uart_bus
+  tx_pin: GPIO1
+  rx_pin: GPIO3
+  baud_rate: 9600
+  debug:
+    direction: BOTH
+
+tuya:
+  uart_id: uart_bus
+  id: if_tuya_mcu
+
+# Create a light using the dimmer
+light:
+  - platform: "tuya"
+    name: "${friendly_name} Light"
+    dimmer_datapoint: 2
+    min_value_datapoint: 3
+    switch_datapoint: 1
